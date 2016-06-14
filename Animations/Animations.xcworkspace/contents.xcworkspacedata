@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:WaveAnimation/WaveAnimation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:WaterAnimation/WaterAnimation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:JellyAnimation/JellyAnimation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:HandWriting/HandWriting.xcodeproj">
+   </FileRef>
+</Workspace>
