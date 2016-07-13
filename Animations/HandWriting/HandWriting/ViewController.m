@@ -55,6 +55,7 @@
     // Do any additional setup after loading the view, typically from a nib.
 }
 
+
 - (NSAttributedString *)attributedStringWithString:(NSString *)string {
     NSAttributedString *attributeString = [[NSAttributedString alloc] initWithString:string attributes:@{NSForegroundColorAttributeName: [UIColor redColor], NSFontAttributeName: [UIFont systemFontOfSize:30]}];
     return attributeString;

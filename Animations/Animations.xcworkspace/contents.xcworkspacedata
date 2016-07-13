@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:BezierLine/BezierLine.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Bezier/Bezier.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:WaveAnimation/WaveAnimation.xcodeproj">
    </FileRef>
    <FileRef

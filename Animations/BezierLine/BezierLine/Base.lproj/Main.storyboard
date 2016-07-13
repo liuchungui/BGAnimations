@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="P1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SeQ-9k-a0a">
+                                <rect key="frame" x="20" y="479" width="20.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="P2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MkK-FG-1FF">
+                                <rect key="frame" x="350" y="479" width="20.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="DGL-Lh-rLp">
+                                <rect key="frame" x="390.5" y="474.5" width="189.5" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Vws-u0-cTo">
+                                <rect key="frame" x="60.5" y="475" width="189.5" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="4L1-mQ-Ulk"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="4L1-mQ-Ulk"/>
+                                    </mask>
+                                </variation>
+                            </textField>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Vws-u0-cTo" firstAttribute="width" secondItem="DGL-Lh-rLp" secondAttribute="width" id="62z-me-m0q"/>
+                            <constraint firstItem="Vws-u0-cTo" firstAttribute="baseline" secondItem="SeQ-9k-a0a" secondAttribute="baseline" id="6J7-eI-UDX"/>
+                            <constraint firstAttribute="trailing" secondItem="DGL-Lh-rLp" secondAttribute="trailing" constant="20" id="CFv-KQ-d3r"/>
+                            <constraint firstItem="DGL-Lh-rLp" firstAttribute="leading" secondItem="MkK-FG-1FF" secondAttribute="trailing" constant="20" id="JKE-18-LZP"/>
+                            <constraint firstItem="MkK-FG-1FF" firstAttribute="centerY" secondItem="SeQ-9k-a0a" secondAttribute="centerY" id="Jh9-Ov-JRl"/>
+                            <constraint firstItem="SeQ-9k-a0a" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="X97-Wm-Y1M"/>
+                            <constraint firstItem="SeQ-9k-a0a" firstAttribute="width" secondItem="MkK-FG-1FF" secondAttribute="width" id="ZGw-y3-UvE"/>
+                            <constraint firstItem="DGL-Lh-rLp" firstAttribute="centerY" secondItem="SeQ-9k-a0a" secondAttribute="centerY" id="Zcg-78-U8c"/>
+                            <constraint firstItem="MkK-FG-1FF" firstAttribute="leading" secondItem="Vws-u0-cTo" secondAttribute="trailing" constant="100" id="aV0-JM-iAd"/>
+                            <constraint firstItem="Vws-u0-cTo" firstAttribute="leading" secondItem="SeQ-9k-a0a" secondAttribute="trailing" constant="20" id="lqk-HI-qqZ"/>
+                            <constraint firstItem="Vws-u0-cTo" firstAttribute="centerY" secondItem="SeQ-9k-a0a" secondAttribute="centerY" id="ptr-Cn-n3m"/>
+                            <constraint firstItem="DGL-Lh-rLp" firstAttribute="leading" secondItem="MkK-FG-1FF" secondAttribute="trailing" constant="56" id="rMj-ss-29b"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="SeQ-9k-a0a" secondAttribute="bottom" constant="100" id="sc2-eG-Nul"/>
+                            <constraint firstItem="Vws-u0-cTo" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="vpk-q0-MU7"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="6J7-eI-UDX"/>
+                                <exclude reference="vpk-q0-MU7"/>
+                                <exclude reference="rMj-ss-29b"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <connections>
+                        <outlet property="p1TextFiled" destination="Vws-u0-cTo" id="wZO-qI-eoV"/>
+                        <outlet property="p2TextFiled" destination="DGL-Lh-rLp" id="5NV-hY-i0b"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

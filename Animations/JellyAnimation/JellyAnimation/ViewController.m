@@ -34,14 +34,6 @@
     [self.view addGestureRecognizer:pan];
     // Do any additional setup after loading the view, typically from a nib.
 }
-- (IBAction)amplitudeSlider:(id)sender {
-}
-- (IBAction)buttonAction:(id)sender {
-}
-- (IBAction)buttonAction:(id)sender {
-}
-- (IBAction)buttonAction:(id)sender {
-}
 
 - (void)displayEvent:(CADisplayLink *)displayLink {
     //这里只能使用layer的presentationLayer的position，使用view不行
