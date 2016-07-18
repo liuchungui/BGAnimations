@@ -13,6 +13,27 @@
 #define kMainScrrenHeight [UIScreen mainScreen].bounds.size.height
 #define kCircleViewRadius 20
 
+
+BOOL start = false;
+CGFloat bezier3(CGFloat p0, CGFloat p1, CGFloat p2, CGFloat p3, CGFloat t) {
+    return p0*pow(1-t, 3) + 3*p1*t*pow(1-t, 2) + 3*p2*t*t*(1-t) + p3*pow(t, 3);
+}
+
+//通过p查找贝塞尔曲线对应的t
+CGFloat searchBezier(CGFloat p0, CGFloat p1, CGFloat p2, CGFloat p3, CGFloat p) {
+    for(CGFloat t = 0; t <= 1.0; t += 0.0001) {
+        CGFloat value = bezier3(p0, p1, p2, p3, t);
+        CGFloat diff = value - p;
+        if(diff <= 0.01 && diff >= -0.01) {
+            return t;
+        }
+    }
+    return -1;
+}
+
+
+
+
 @interface ViewController ()
 //底部的layer
 @property (nonatomic, strong) CAShapeLayer *bottomLayer;
@@ -36,7 +57,7 @@
     self.position = [self originPoint];
     
     self.tmpPoint = CGPointMake(kMainScrrenWidth/2.0, 300);
-    self.topLayer.path = [self waterPathWithTopPoint:self.tmpPoint].CGPath;
+//    self.topLayer.path = [self waterPathWithTopPoint:self.tmpPoint].CGPath;
     
     //添加定时器
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayEvent:)];
@@ -78,6 +99,7 @@
             startPoint = [pan locationInView:self.view];
             break;
         case UIGestureRecognizerStateChanged: {
+            start = true;
             CGPoint movePoint = [pan locationInView:self.view];
             self.position = CGPointMake(self.position.x + (movePoint.x - startPoint.x), self.position.y + (movePoint.y - startPoint.y));
             self.circleView.top = self.position.y;
@@ -272,6 +294,11 @@
     return (y - point0.y - radius + (tan(angle/2.0))*point0.x + radius/cos(angle/2.0)) / tan(angle/2.0);
 }
 
+- (CGFloat)getXForBottomLineWithY:(CGFloat)y radius:(CGFloat)radius top:(CGPoint)point0 angle:(CGFloat)angle {
+    CGFloat b = point0.y - radius + radius * cos(angle/2.0) - tan(angle/2.0)*(point0.x - radius * sin(angle/2.0));
+    return (y - b) / tan(angle/2.0);
+}
+
 - (UIBezierPath *)waterPathWithTopPoint:(CGPoint)topPoint {
     CGFloat gap = (kMainScrrenHeight/2.0 - topPoint.y)*3;
     if(gap > 0) {
@@ -388,45 +415,72 @@
 - (UIBezierPath *)resultPathWithPoint:(CGPoint)topPoint {
     //半径
     CGFloat radius = 50;
-    //偏移量
-    CGFloat offset = kMainScrrenWidth * (M_PI - 2) / 2.0 / M_PI;
+    //整个图形的高
+    CGFloat height = kMainScrrenHeight/2.0 - topPoint.y;
+    CGFloat width = kMainScrrenWidth - height;
+    CGFloat left = (kMainScrrenWidth - width)/2.0;
+    CGFloat right = left + width;
     
     //点
-    CGPoint pointA = CGPointMake(0, kMainScrrenHeight/2.0);
-    CGPoint pointB = CGPointMake(kMainScrrenWidth, kMainScrrenHeight/2.0);
+    CGPoint pointA = CGPointMake(left, kMainScrrenHeight/2.0);
+    CGPoint pointB = CGPointMake(right, kMainScrrenHeight/2.0);
     CGPoint pointC = topPoint;
-    CGPoint pointD = CGPointMake(pointA.x + offset, pointA.y);
-    CGPoint pointE = CGPointMake(pointB.x - offset, pointB.y);
     
     CGPoint pointF, pointG;
     
-    //跳动的高
-    CGFloat h = kMainScrrenHeight/2.0 - topPoint.y;
-//    NSLog(@"h = %f", h);
-    
     UIBezierPath *path = [UIBezierPath bezierPath];
     /**
-     * h < 2*radius 时， 显示正弦曲线
-     * h < 3*radius 时， 向水滴效果转换
-     * h >= 3*radius 时， 水滴效果形成
+     * height < 2*radius 时， 显示正弦曲线
+     * height < 3*radius 时， 向水滴效果转换
+     * height >= 3*radius 时， 水滴效果形成
      */
-    if(h < 2*radius) {
+    if(height < 2*radius) {
+        //偏移量
+        CGFloat offset = width * (M_PI - 2) / (2.0 * M_PI);
+        
+        CGPoint pointD = CGPointMake(pointA.x + offset, pointA.y);
+        CGPoint pointE = CGPointMake(pointB.x - offset, pointB.y);
+        
         pointF = CGPointMake(pointC.x - offset, pointC.y);
         pointG = CGPointMake(pointC.x + offset, pointC.y);
+        
+        //画正弦曲线
+        [path moveToPoint:pointA];
+//        for(CGFloat t = 0.001; t <= 1; t += 0.001) {
+//            CGFloat x = bezier3(pointA.x, pointD.x, pointF.x, pointC.x, t);
+//            CGFloat y = bezier3(pointA.y, pointD.y, pointF.y, pointC.y, t);
+//            [path addLineToPoint:CGPointMake(x, y)];
+//        }
+        [path addCurveToPoint:pointC controlPoint1:pointD controlPoint2:pointF];
+        [path addCurveToPoint:pointB controlPoint1:pointG controlPoint2:pointE];
+        [path addLineToPoint:pointA];
+        
+        return path;
     }
-    else if(h < 10*radius) {
+    else if(height < 10*radius) {
+        //偏移量
+        CGFloat offset = width * (M_PI - 2) / (2.0 * M_PI);
+        if(height > 2.5*radius) {
+            offset += height - 2.5*radius;
+        }
+        
+        CGPoint pointD = CGPointMake(pointA.x + offset, pointA.y);
+        CGPoint pointE = CGPointMake(pointB.x - offset, pointB.y);
+        
+//        NSLog(@"pointD: x = %f, y = %f", pointD.x, pointD.y);
+        
         //初始角度
-        CGFloat offsetAngle = M_PI*13/48.0;
+        CGFloat offsetAngle = M_PI*19/48.0;
         //角度
-        CGFloat angle = (h-2*radius)/radius*(M_PI - offsetAngle) + offsetAngle;
+        CGFloat angle = (height-2*radius)/radius*(M_PI - offsetAngle) + offsetAngle;
         if(angle > M_PI) {
             angle = M_PI;
         }
         //中心点
         CGPoint pointH = CGPointMake(pointC.x, pointC.y + radius);
         //圆弧上的切线中点, point1为左切点， point2为右切点
-        CGPoint point1 = CGPointMake(0, pointH.y + (h-radius)/5.0);
-        CGPoint point2 = CGPointMake(0, pointH.y + (h-radius)/5.0);
+        CGPoint point1 = CGPointMake(0, pointH.y + (height-radius)/4.0);
+        CGPoint point2 = CGPointMake(0, pointH.y + (height-radius)/4.0);
         point2.x = [self getPointXWithY:point2.y radius:radius top:topPoint angle:angle];
         point1.x = kMainScrrenWidth - point2.x;
         
@@ -434,56 +488,87 @@
         CGPoint pointT1 = CGPointMake(pointH.x - radius * sin(angle/2.0), pointH.y - radius * cos(angle/2.0));
         CGPoint pointT2 = CGPointMake(pointH.x + radius * sin(angle/2.0), pointH.y - radius * cos(angle/2.0));
         
-//        NSLog(@"point1 x: %f, y: %f", point2.x, point2.y);
-//        NSLog(@"pointT2 x: %f, y: %f", pointT2.x, pointT2.y);
-//        NSLog(@"k = %f, tan = %f", (pointT2.y - point2.y)/(pointT2.x - point2.x), tan( angle / 2.0));
-//        
+        //计算
+        CGFloat t = searchBezier(pointA.x, pointD.x, point1.x, pointT1.x, kMainScrrenWidth/2.0);
+        CGFloat y = bezier3(pointA.y, pointD.y, point1.y, pointT1.y, t);
+//        NSLog(@"t = %f, y = %f, %f", t, y, kMainScrrenHeight/2.0);
+        if(start && t != -1) {
+            //0.34算是交叉点
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                NSLog(@"t = %f, y = %f, x = %f, height = %f", t, y, bezier3(pointA.x, pointD.x, point1.x, pointT1.x, t), height);
+            });
+        }
         
-        UIBezierPath *path = [UIBezierPath bezierPath];
-        [path moveToPoint:pointA];
-        [path addCurveToPoint:pointT1 controlPoint1:pointD controlPoint2:point1];
-        [path addArcWithCenter:pointH radius:radius startAngle:M_PI + M_PI_2 - angle/2.0 endAngle:M_PI * 2 - (M_PI_2 - angle/2.0) clockwise:YES];
-        [path addCurveToPoint:pointB controlPoint1:point2 controlPoint2:pointE];
-        [path addLineToPoint:pointA];
-        return path;
-        
-        
-//        //总共增加的y
-//        CGFloat totalY = 1/3.0*radius;
-//        //正弦值
-//        CGFloat angle = asin((kMainScrrenHeight/2.0 - pointC.y - radius) / h);
-//        //M点的值
-//        CGPoint pointM = CGPointMake(angle/(2*M_PI)*kMainScrrenWidth, pointC.y + radius);
-//        //N点与M点对应
-//        CGPoint pointN = CGPointMake(kMainScrrenWidth - pointM.x, pointM.y);
-//        //对应h的变化，F的y坐标的变化
-//        CGFloat y = (h - 2*radius) * 1.0 / radius * totalY + pointC.y;
-//        CGFloat fx = (y - pointC.y) * (3*radius - 3*offset) * 1.0 / radius + pointC.x - offset;
-//        CGFloat gx = (y - pointC.y) * (3*offset - 3*radius) /radius + pointC.x + offset;
-//        pointF = CGPointMake(fx, y);
-//        pointG = CGPointMake(gx, y);
-//        
-//        //画正弦曲线
-//        [path moveToPoint:pointA];
-//        [path addQuadCurveToPoint:pointM controlPoint:pointD];
-//        [path addCurveToPoint:pointN controlPoint1:pointF controlPoint2:pointG];
-//        [path addQuadCurveToPoint:pointB controlPoint:pointE];
-////        [path addCurveToPoint:pointC controlPoint1:pointD controlPoint2:pointF];
-////        [path addCurveToPoint:pointB controlPoint1:pointG controlPoint2:pointE];
-//        [path addLineToPoint:pointA];
-//        return path;
+        if(height < 256) {
+            UIBezierPath *path = [UIBezierPath bezierPath];
+            [path moveToPoint:pointA];
+            [path addCurveToPoint:pointT1 controlPoint1:pointD controlPoint2:point1];
+            [path addArcWithCenter:pointH radius:radius startAngle:M_PI + M_PI_2 - angle/2.0 endAngle:M_PI * 2 - (M_PI_2 - angle/2.0) clockwise:YES];
+            [path addCurveToPoint:pointB controlPoint1:point2 controlPoint2:pointE];
+            [path addLineToPoint:pointA];
+            return path;
+        }
+        else {
+            //底部点的半径
+            CGFloat yOffset = height - 256;
+            
+            //中心点
+            CGPoint pointH = CGPointMake(pointC.x, pointC.y + radius);
+            //圆弧上的切线中点, point1为左切点， point2为右切点
+            CGPoint point1 = CGPointMake(0, pointH.y + radius - yOffset);
+            CGPoint point2 = CGPointMake(0, pointH.y + radius - yOffset);
+            point2.x = [self getPointXWithY:point2.y radius:radius top:topPoint angle:angle];
+            point1.x = kMainScrrenWidth - point2.x;
+            
+            //圆弧的两个终点
+            CGPoint pointT1 = CGPointMake(pointH.x - radius * sin(angle/2.0), pointH.y - radius * cos(angle/2.0));
+            CGPoint pointT2 = CGPointMake(pointH.x + radius * sin(angle/2.0), pointH.y - radius * cos(angle/2.0));
+            
+            //圆底部的点
+            CGPoint cirleBottomPoint = CGPointMake(kMainScrrenWidth/2.0, 324.401963 - yOffset*2);
+            CGFloat bottomRadius = yOffset > radius ? radius : yOffset;
+            //底部圆心点
+            CGPoint bottomCenterPoint = CGPointMake(kMainScrrenWidth/2.0, cirleBottomPoint.y - bottomRadius);
+            //角度
+            CGFloat bottomAngleOffset = 1/4.0*M_PI;
+            CGFloat bottomAngle = bottomRadius / radius * (M_PI - bottomAngleOffset) + bottomAngleOffset;
+            if(bottomAngle > M_PI) {
+                bottomAngle = M_PI;
+            }
+            
+            //圆弧上的切线中点, point1为左切点， point2为右切点
+            CGPoint bottomPoint1 = CGPointMake(0, bottomCenterPoint.y + yOffset/4.0);
+            CGPoint bottomPoint2 = CGPointMake(0, bottomCenterPoint.y + yOffset/4.0);
+#warning 此处直线求的是左边的切线
+            //左边切线的点
+            bottomPoint1.x = [self getXForBottomLineWithY:bottomPoint1.y radius:bottomRadius top:cirleBottomPoint angle:bottomAngle];
+            bottomPoint2.x = kMainScrrenWidth - bottomPoint1.x;
+            
+            //圆弧的两个终点
+            CGPoint bottomPointT1 = CGPointMake(bottomCenterPoint.x - bottomRadius * sin(bottomAngle/2.0), bottomCenterPoint.y + bottomRadius * cos(bottomAngle/2.0));
+            CGPoint bottomPointT2 = CGPointMake(bottomCenterPoint.x + bottomRadius * sin(bottomAngle/2.0), bottomCenterPoint.y + bottomRadius * cos(bottomAngle/2.0));
+            
+            NSLog(@"k = %f, tan = %f", (bottomPoint1.y - bottomPointT1.y) / (bottomPoint1.x - bottomPointT1.x), tan(bottomAngle/2.0));
+            NSLog(@"%f, %f", bottomPointT1.x, [self getXForBottomLineWithY:bottomPointT1.y radius:bottomRadius top:cirleBottomPoint angle:bottomAngle]);
+            
+            
+            UIBezierPath *path = [UIBezierPath bezierPath];
+            [path moveToPoint:pointT1];
+            [path addArcWithCenter:pointH radius:radius startAngle:M_PI + M_PI_2 - angle/2.0 endAngle:M_PI * 2 - (M_PI_2 - angle/2.0) clockwise:YES];
+            [path addCurveToPoint:bottomPointT2 controlPoint1:point2 controlPoint2:bottomPoint2];
+//            [path moveToPoint:bottomPointT2];
+            [path addArcWithCenter:bottomCenterPoint radius:bottomRadius startAngle:M_PI_2 - bottomAngle/2.0 endAngle:M_PI_2 + bottomAngle/2.0 clockwise:YES];
+            [path addCurveToPoint:pointT1 controlPoint1:bottomPoint1 controlPoint2:point1];
+            return path;
+        }
     }
     else {
         pointF = CGPointMake(pointC.x - radius, pointC.y - 1.0/3*radius);
         pointG = CGPointMake(pointC.x + radius, pointF.y);
+        
+        return path;
     }
-    //画正弦曲线
-    [path moveToPoint:pointA];
-    [path addCurveToPoint:pointC controlPoint1:pointD controlPoint2:pointF];
-    [path addCurveToPoint:pointB controlPoint1:pointG controlPoint2:pointE];
-    [path addLineToPoint:pointA];
-    
-    return path;
 }
 
 
